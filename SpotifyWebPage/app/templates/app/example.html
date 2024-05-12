@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <header>
+        <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+        <title>Page</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <script src="{% static 'libs/angular.min.js' %}"></script>
+    </header>
+    <body>
+        <div class="container" ng-app="myApp" ng-controller="myCtrl"> 
+            <div class="row">
+                First Name: <input type="text" ng-model="firstName"><br>
+                Last Name: <input type="text" ng-model="lastName"><br>
+                <br>
+                {% verbatim %}Full Name: {{firstName + " " + lastName}}{% endverbatim %}
+            </div>
+            <div class="row col-sm-6 container">
+                <button class="btn btn-primary" type="button" ng-click="buttonClick()">Botão de teste</button>  
+            </div>
+            <div class="row col-sm-6 container">
+                <button class="btn btn-primary" type="button" ng-click="callApi()">Botão da api</button>  
+            </div>        
+        </div>
+                
+    </body>
+
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function($scope, $interval, $http){
+            //Javascript
+            //No angular js, existe o objeto scope. Todos os dados/funções desta pagina tem de ser feitos com o scope:
+            $scope.firstName= "John";
+            $scope.lastName= "Doe";
+
+            /*
+            APRESENTAR DADOS NA INTERFACE
+            Para mostrar é usar algo como {% verbatim %} {{ firstname }} {% endverbatim %}
+            Os verbatim é para o django não confundir as duplas chavetas. Tanto o angular js e django usam esses tipos de expressão para realizar algumas tarefas. 
+            No angular js serve para apresentar os dados do scope.
+            */
+
+            /*
+            ASSOCIAR DADOS A CODIGO HTML
+            Caso queira associar algo de uma variavel, como um <input>, usa-se o ng-model="firstname". O que faz é os dados que tiverem dentro dessa variavel 
+            vão espelhar-se nesse input 
+            Exemplo: First Name: <input type="text" ng-model="firstName"><br>
+            */
+
+            /*
+            FUNCOES
+            Para criar funções no angular js, faz-se o seguinte
+            */
+            $scope.buttonClick = function(){
+                alert("Carregou no botão"); 
+            }
+            /*
+            Uma variavel vai ser a propria função.
+            Para chamar a função, dá para fazer de duas formas:
+            1. Quando carrega a pagina
+            2. Após alguma ação
+
+            Para a chamar quando carrega a pagina, é só chamar a variavel como função
+            */
+            $scope.buttonClick();
+
+            /*
+            Para chamar, por exemplo, quando se carrega no botão, no html usamos o ng-click.
+            Exemplo: <button class="btn btn-primary" type="button" ng-click="buttonClick()">Botão de teste</button>  
+            */
+
+            /*
+            Chamadas em loop
+            Para fazer chamadas em loop, usa-se o objeto $interval. Este objeto permite executar uma função a cada x milissegundos
+            https://docs.angularjs.org/api/ng/service/$interval
+
+            Para ver o seguinte, botao direito do rato, inspecionar. Apos isso ir a consola. 
+            Em alguns browsers, não é possivel ver a mesma mensagem varias vezes. Para isso, altera-se no input, na propria interface o first name
+            */
+
+            $scope.printsEmLoop = function(){
+                console.log("Print para a consola: " + $scope.firstName);
+            }
+
+            $interval($scope.printsEmLoop, 1000)
+
+            /*
+            CHAMADAS DE API
+
+            Para chamar api, usa-se o objeto $http.
+            Para uma chamada do tipo GET, é o seguinte
+            */
+
+            $scope.callApi = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://cat-fact.herokuapp.com/facts/random',
+                    params: { animal_type: 'dog', amount: 10 }
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.apiData = response.data; // Access the response data here
+                    console.log($scope.apiData);
+                    console.log($scope.apiData.text);
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }
+
+            /*
+            Nesta api, tem os dados seguintes ($scope.apiData)
+            Object { status: {…}, _id: "5fd56cdcb3fb8b0017357170", type: "cat", 
+            deleted: false, user: "5fd56c8db3fb8b0017357163", 
+            text: "Cats’ collarbones don’t connect to their other bones, as these bones are buried in their shoulder muscles.", 
+            createdAt: "2020-12-13T01:22:36.794Z", updatedAt: "2020-12-13T01:22:36.794Z", __v: 0 }
+
+            O que interessa é apenas o texto. Então vai se dar console.log do $scope.apiData.text
+            */
+
+            /*
+            Para uma chamada do tipo post, em vez de usar o params, usa-se o data:
+            (A função não trabalha, é só um exemplo)
+            */
+
+            $scope.callApiPOST = function(){
+                $http({
+                    method: 'POST',
+                    url: 'https://exemplo.pt/postAPI',
+                    data: { name : "Maria", age : 20 }
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    //..
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    //..
+                });
+            }
+            
+            /*
+            NOTAS
+
+            Para isto funcionar, variaveis e funções tem de ser feitas a partir do $scope e no html, tem de estar tudo dentro do div com o ng-app e ng-controller
+            */
+            
+            
+        
+        });
+    </script>
+</html>

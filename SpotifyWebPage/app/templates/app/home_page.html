@@ -3,9 +3,8 @@
 <!--Corpo do perfil-->
 {% block content %}
 
-    <div class="container" ng-controller="myCtrlHomeApp">
-        <button class="btn btn-primary" ng-click="loginCallBack()">BTN </button>
-        
+    <div class="container d-flex justify-content-center" ng-controller="myCtrlHomeApp">
+        <button class="btn btn-primary " ng-click="loginCallBack()">Login Btn</button>
     
     
     
@@ -15,89 +14,54 @@
         app.controller('myCtrlHomeApp', function($scope, $interval, $http){
             //Javascript
 
-            //Token de autenticacao do spotify
-            $scope.token = '';     
+            //id de serviço
             $scope.client_id = '82317a0473474f8d944323a93d488939';
-            $scope.client_secret = 'b4ab4620abcc42dca2195bde4a982607';
-            
-            $scope.initService = function(){
 
-                
-                $http({
-                    method: 'POST',
-                    url: 'https://accounts.spotify.com/api/token',
-                    headers: {
-                        'Content-type': 'application/x-www-form-urlencoded',
-                    },
-                    data: 'grant_type=client_credentials&client_id=' + $scope.client_id + '&client_secret=' + $scope.client_secret,
-                }).then(function successCallback(response) {
-                    // Gere resposta, em caso de sucesso
-                    let apiData = response.data; // Access the response data here
-                    $scope.token = apiData.access_token;
-                }, function errorCallback(error) {
-                    // Gere resposta, em caso de falha
-                    console.error('Error fetching data:', error);
-                });
-                
-            }
-
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
+            //Documentação do Spotify
+            $scope.loginCallBack = function(){
+                const generateRandomString = (length) => {
+                    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                    const values = crypto.getRandomValues(new Uint8Array(length));
+                    return values.reduce((acc, x) => acc + possible[x % possible.length], "");
                 }
-                return cookieValue;
+
+                const sha256 = async (plain) => {
+                    const encoder = new TextEncoder()
+                    const data = encoder.encode(plain)
+                    return window.crypto.subtle.digest('SHA-256', data)
+                }
+                const base64encode = (input) => {
+                    return btoa(String.fromCharCode(...new Uint8Array(input)))
+                    .replace(/=/g, '')
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_');
+                }
+
+                const codeVerifier  = generateRandomString(64);
+                const hashed = sha256(codeVerifier)
+                const codeChallenge = base64encode(hashed);
+
+
+                const clientId = '82317a0473474f8d944323a93d488939';
+                const redirectUri = 'http://127.0.0.1:8000/perfil';
+                const scope = 'user-read-private user-read-email';
+                const authUrl = new URL("https://accounts.spotify.com/authorize");
+
+                // generated in the previous step
+                window.localStorage.setItem('code_verifier', codeVerifier);
+
+                const params =  {
+                    response_type: 'code',
+                    client_id: clientId,
+                    scope,
+                    code_challenge_method: 'S256',
+                    code_challenge: codeChallenge,
+                    redirect_uri: redirectUri,
+                }
+
+                authUrl.search = new URLSearchParams(params).toString();
+                window.location.href = authUrl.toString();
             }
-            const csrftoken = getCookie('csrftoken');
-
-            $scope.initService();
-            /*
-            $scope.loginCallBack = function(){
-                $http({
-                    method: 'GET',
-                    url: 'https://api.spotify.com/v1/me',
-                    headers: {
-                        'Authorization' : 'Bearer ' + $scope.token
-                    }
-                }).then(function successCallback(response) {
-                    // Gere resposta, em caso de sucesso
-                    $scope.apiData = response.data; // Access the response data here
-                    console.log($scope.apiData);
-                    console.log($scope.apiData.text);
-                }, function errorCallback(error) {
-                    // Gere resposta, em caso de falha
-                    console.error('Error fetching data:', error);
-                });
-            };
-            */
-
-            //https://www.youtube.com/watch?v=1vR3m0HupGI
-            $scope.loginCallBack = function(){
-
-                $http({
-                    method: 'GET',
-                    url: 'https://accounts.spotify.com/authorize',
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                    },
-                    params: "client_id=" + $scope.client_id + "&response_type=code&redirect_uri=http://127.0.0.1:8000/perfil&show_dialog=true" +
-                    "&scope=ugc-image-upload playlist-read-private"   
-                }).then(function successCallback(response) {
-                    // Gere resposta, em caso de sucesso
-                    $scope.apiData = response.data; // Access the response data here
-                }, function errorCallback(error) {
-                    console.error('Error fetching data:', error);
-                });
-            }
-
         });
     </script>
 

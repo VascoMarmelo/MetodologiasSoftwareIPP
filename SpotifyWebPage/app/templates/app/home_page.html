@@ -1,14 +1,22 @@
-{% extends 'app/base_page.html' %}
+{% extends 'app/base_loginpage.html' %}
 
 <!--Corpo do perfil-->
 {% block content %}
 
-    <div class="container d-flex justify-content-center" ng-controller="myCtrlHomeApp">
-        <button class="btn btn-primary " ng-click="loginCallBack()">Login Btn</button>
+    <div class="container flex-start" ng-controller="myCtrlHomeApp" style="font-family: 'Anton', sans-serif; margin-top: 70px; margin-left: -200px;">
+        <h1 style="color: #fc944c; font-size: 50px;">LOGIN</h1>
+        <button class="btn" style="background-color:#fc944c; color: white; font-size: 30px; width: 370px;" ng-click="loginCallBack()">Faça login com a sua conta Spotify</button>
     
+    </div>     
     
-    
-    </div>      
+    <div class="container" style="display: grid; align-items: center; grid-template-columns: 1fr 1fr 1fr; column-gap: 5px;">
+        <div class="text">
+            <h1 style="font-family: 'Anton', sans-serif; font-size: 100px; color: #fc944c; width: 1000px;">ENCONTRA A TUA PRÓXIMA MÚSICA PREFERIDA!</h1>
+        </div>   
+        <div class="image">
+            <img src="static/MADS.jpg" width="500" height="500">
+        </div>
+      </div>
 
     <script>
         app.controller('myCtrlHomeApp', function($scope, $interval, $http){

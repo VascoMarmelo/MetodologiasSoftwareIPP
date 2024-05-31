@@ -37,7 +37,7 @@ def playlist_info(request):
 
         context['playlists'].append(playlist_info)
 
-    return render(request, 'spotify_app/playlist.html', context)
+    return render(request, 'templates/app/playlist.html', context)
 
 def get_current_track(request):
     playlists = sp.get_current_tracks()
@@ -49,4 +49,4 @@ def get_current_track(request):
             'link': playlist['external_urls']['spotify']
         }
         context['playlists'].append(playlist_info)
-    return render(request, 'spotify_app/playlist.html', context)
+    return render(request, 'templates/app/playlist.html', context)

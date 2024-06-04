@@ -49,7 +49,6 @@
                 const hashed = sha256(codeVerifier)
                 const codeChallenge = base64encode(hashed);
 
-
                 const clientId = '82317a0473474f8d944323a93d488939';
                 const redirectUri = 'http://127.0.0.1:8000/perfil';
                 const scope = 'user-read-private user-read-email';
@@ -69,6 +68,8 @@
 
                 authUrl.search = new URLSearchParams(params).toString();
                 window.location.href = authUrl.toString();
+
+                
             }
         });
     </script>

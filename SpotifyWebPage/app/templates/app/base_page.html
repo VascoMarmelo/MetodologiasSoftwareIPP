@@ -12,13 +12,14 @@
   </header>
   
   <body style="background-color:black;">
+    <div ng-app="app" ng-controller="myCtrlBaseApp">
       {% block navbar %}
       <!-- HTML for default navbar -->
       <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #545454;">
           <div class="container-fluid">
             
             <img src="{% static 'MADS.jpg' %}" width="40" height="40">
-
+  
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
               <div class="navbar-nav">
                 <a class="nav-link" href="{% url 'app_profile' %}">Perfil</a>
@@ -26,25 +27,23 @@
               </div>
             </div>
           </div>
-      </nav>
+      </nav>      
       {% endblock %}
+    </div>  
 
-      <div class="container" ng-app="app" ng-controller="myCtrlBaseApp">
-          <!--NavBar-->           
-          {% verbatim %}{{teste1}}{% endverbatim %}
-
-          {% block content %}
-          {% endblock %}
-
-          <!--Footer-->
-
-      </div>
-            
-  </body>
-
+      <div class="container" ng-app="app" ng-controller="myCtrlBaseApp">      
+          {% block content %}{% endblock %}
+      </div>            
+  </body>  
+  
+  {% block styles %}{% endblock %}  
+  
   <script>
     var app = angular.module('app', []);
     app.controller('myCtrlBaseApp', function($scope, $interval, $http){});
+
+    {% block scripts %}{% endblock %}
   </script>
+  
 </html>
 

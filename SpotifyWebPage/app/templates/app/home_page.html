@@ -20,42 +20,41 @@
 
     <script>
         app.controller('myCtrlHomeApp', function($scope, $interval, $http){
-            //Javascript
-
-            //id de serviço
+            // Id de serviço
             $scope.client_id = '82317a0473474f8d944323a93d488939';
 
-            //Documentação do Spotify
-            $scope.loginCallBack = function(){
+            // Documentação do Spotify
+            $scope.loginCallBack = async function(){
                 const generateRandomString = (length) => {
                     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
                     const values = crypto.getRandomValues(new Uint8Array(length));
                     return values.reduce((acc, x) => acc + possible[x % possible.length], "");
                 }
 
+                const codeVerifier  = generateRandomString(64);
+
                 const sha256 = async (plain) => {
                     const encoder = new TextEncoder()
                     const data = encoder.encode(plain)
                     return window.crypto.subtle.digest('SHA-256', data)
                 }
+
                 const base64encode = (input) => {
-                    return btoa(String.fromCharCode(...new Uint8Array(input)))
+                return btoa(String.fromCharCode(...new Uint8Array(input)))
                     .replace(/=/g, '')
                     .replace(/\+/g, '-')
                     .replace(/\//g, '_');
                 }
 
-                const codeVerifier  = generateRandomString(64);
-                const hashed = sha256(codeVerifier)
-                const codeChallenge = base64encode(hashed);
-
-
+                const hashed = await sha256(codeVerifier);
+                const codeChallenge = base64encode(hashed);            
+                
                 const clientId = '82317a0473474f8d944323a93d488939';
                 const redirectUri = 'http://127.0.0.1:8000/perfil';
                 const scope = 'user-read-private user-read-email';
-                const authUrl = new URL("https://accounts.spotify.com/authorize");
-
-                // generated in the previous step
+                const authUrl = new URL("https://accounts.spotify.com/authorize");                                
+                
+                // Generated in the previous step
                 window.localStorage.setItem('code_verifier', codeVerifier);
 
                 const params =  {
@@ -65,15 +64,10 @@
                     code_challenge_method: 'S256',
                     code_challenge: codeChallenge,
                     redirect_uri: redirectUri,
-                }
-
+                }     
+                    
                 authUrl.search = new URLSearchParams(params).toString();
-                window.location.href = authUrl.toString();
-
-
-                // Retrieve the 'code' to be used in exchange for the Token used in API requests
-                const urlParams = new URLSearchParams(window.location.search);     
-                $scope.code = urlParams.get('code');
+                window.location.href = authUrl.toString();                          
             }
         });
     </script>

@@ -14,9 +14,9 @@
             <h1 style="font-family: 'Anton', sans-serif; font-size: 100px; color: #fc944c; width: 1000px;">ENCONTRA A TUA PRÓXIMA MÚSICA PREFERIDA!</h1>
         </div>   
         <div class="image">
-            <img src="static/MADS.jpg" width="500" height="500">
+            <img src="/static/MADS.jpg" width="500" height="500">
         </div>
-      </div>
+    </div>
 
     <script>
         app.controller('myCtrlHomeApp', function($scope, $interval, $http){
@@ -69,6 +69,11 @@
 
                 authUrl.search = new URLSearchParams(params).toString();
                 window.location.href = authUrl.toString();
+
+
+                // Retrieve the 'code' to be used in exchange for the Token used in API requests
+                const urlParams = new URLSearchParams(window.location.search);     
+                $scope.code = urlParams.get('code');
             }
         });
     </script>

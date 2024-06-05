@@ -7,5 +7,5 @@ def index(request):
 def app_example(request):
     return render(request, template_name='app/example.html')
 
-def app_perfil(request):
-    return render(request, template_name='app/perfil.html')
+def app_profile(request):
+    return render(request, template_name='app/profile_page.html')

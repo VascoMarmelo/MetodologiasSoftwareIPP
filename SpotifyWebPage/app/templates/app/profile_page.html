@@ -1,0 +1,189 @@
+{% extends 'app/base_page.html' %}
+{% load static %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #545454;">
+    <div class="container-fluid">
+        
+        <img src="{% static 'MADS.jpg' %}" width="40" height="40">
+        
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-link" href="{% url 'app_profile' %}">Perfil</a>          
+            </div>
+        </div>
+        
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <span class="nav-link">Utilizador: {{ user.username }}</span>
+            </li>
+            <li class="nav-item">
+                <a style="color: orange;" class="nav-link btn-logout" href="">LOGOUT</a>
+            </li>
+        </ul>
+        
+    </div>
+</nav>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="column">
+            <h1>PERFIL</h1>
+            <div class="section">
+                <h2>LISTA DE ARTISTAS</h2>
+                <ul class="list">
+                    <li>Artista A <button>Info</button></li>
+                    <li>Artista B <button>Info</button></li>
+                    <li>Artista C <button>Info</button></li>
+                    <li>Artista D <button>Info</button></li>
+                </ul>
+            </div>
+            <div class="section">
+                <h2>PLAYLISTS</h2>
+                <ul class="list">
+                    <li>PLAYLIST A <button>Info</button></li>
+                    <li>PLAYLIST B <button>Info</button></li>
+                    <li>PLAYLIST C <button>Info</button></li>
+                    <li>PLAYLIST D <button>Info</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="column">
+            <div class="random-music">
+                <img src="/static/MADS.jpg" alt="MADS" style=" margin-bottom: 20px;">
+                <button>RANDOM MUSIC</button>
+                <div class="input-container">
+                    <input type="text" placeholder="MÚSICA RECOMENDADA ALEATÓRIA">
+                    <button class="info-button">INFO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bot">
+        <div class="header">MADS BOT</div>
+        <div class="content">
+            <!-- Bot messages go here -->
+        </div>
+    </div>
+
+<style>
+    body {
+        background-color: black;
+    }
+    .navbar {
+        background-color: #444;
+    }
+    .navbar-brand img {
+        width: 30px;
+        height: auto;
+        margin-left: 10px;
+    }
+    .navbar-nav .nav-item .nav-link {
+        font-size: 18px;
+    }
+    .btn-logout {
+        margin-left: 50px;
+        margin-right: 10px;
+    }
+    .container {
+        display: flex;
+        padding: 20px;
+        margin-left: 40px;
+    }
+    .column {
+        flex: 1;
+        padding: 20px;
+    }
+    h1 {
+        color: orange;
+        margin-bottom: 50px;
+        margin-left: 20px;
+    }
+    .section {
+        margin-bottom: 20px;
+    }
+    .section h2 {
+        color: #aaa;
+        margin-bottom: 10px;
+    }
+    .list {
+        list-style-type: none;
+        padding: 0;
+    }
+    .list li {
+        background-color: #444;
+        margin-bottom: 5px;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .list li button {
+        background-color: orange;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    .random-music {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .random-music input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        margin-right: 10px;
+    }
+    .random-music .input-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin-top: 10px;
+    }
+    .random-music button {
+        background-color: orange;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    .info-button {
+        background-color: gray;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    .bot {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background-color: #444;
+        padding: 10px;
+        width: 200px;
+    }
+    .bot .header {
+        background-color: orange;
+        padding: 5px;
+        text-align: center;
+    }
+    .bot .content {
+        background-color: white;
+        color: black;
+        padding: 10px;
+        height: 150px;
+        overflow-y: scroll;
+    }
+</style>
+
+<script>
+    app.controller('myCtrlPerfil', function($scope, $interval, $http, $location){
+        //Javascript
+        //No url, depois de fazer login, está o code que tem de ser usado no parametro do get
+        $scope.code = window.location.search;
+        $scope.code = $scope.code.split('=')[1];
+        console.log($scope.code);   
+    });
+</script>
+{% endblock %}

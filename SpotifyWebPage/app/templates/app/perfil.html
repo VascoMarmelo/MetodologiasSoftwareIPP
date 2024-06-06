@@ -4,26 +4,24 @@
 {% block content %}
 
     <div class="container" ng-controller="myCtrlPerfil">
-        {{userData}}
+        <p style="color: white;">{% verbatim %}{{userData | json}}{% endverbatim %}</p>
     </div>      
 
     <script>
         app.controller('myCtrlPerfil', function($scope, $interval, $http, $location){
             //Javascript
 
-            //No url, depois de fazer login, está o code que tem de ser usado no parametro do get
-            $scope.client_id = '82317a0473474f8d944323a93d488939';
+            //Inicialização de variaveis
+            $scope.client_id = window.localStorage.getItem('client_id');
             $scope.code = window.location.search;
             $scope.code = $scope.code.split('=')[1];
-            $scope.accessToken = '';
-
-            
+            $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
             
             $scope.getUserData = function(){
                 $http({
                     method: 'GET',
                     url: 'https://api.spotify.com/v1/me',
-                    headers: {Authorization: 'Bearer ' + $scope.code},
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
                 }).then(function successCallback(response) {
                     // Gere resposta, em caso de sucesso
                     $scope.userData = response.data; // Access the response data here
@@ -36,14 +34,15 @@
             }
 
             $scope.getToken = async function() {
-                const getToken = async function() {
 
-                    const clientId = '82317a0473474f8d944323a93d488939';
-                    const redirectUri = 'http://127.0.0.1:8000/perfil';
+                const clientId = window.localStorage.getItem('client_id');
+                const redirectUri = window.localStorage.getItem('redirectUri');
+                
+                //Primeira Vez que acede-se à pagina
+                if (window.localStorage.getItem('refresh_token') == ''){
 
                     // stored in the previous step
-                    let codeVerifier = window.localStorage.getItem('code_verifier');
-                    console.log(codeVerifier);
+                    let codeVerifier = window.localStorage.getItem('code_verifier');             
 
                     const payload = {
                         method: 'POST',
@@ -61,18 +60,49 @@
 
                     const body = await fetch('https://accounts.spotify.com/api/token', payload);
                     const response = await body.json();
-
-                    localStorage.setItem('access_token', response.access_token);
+                    window.localStorage.setItem('access_token', response.access_token);
+                    window.localStorage.setItem('refresh_token', response.refresh_token);
+                    $scope.accessToken = response.access_token;
                 }
+                //Refresh
+                else{
+                    
+                    // refresh token that has been previously stored
+                    const refreshToken = window.localStorage.getItem('refresh_token');
+                    const url = "https://accounts.spotify.com/api/token";
 
-                $scope.accessToken = await getToken();
-                console.log($scope.accessToken);
+                    const payload = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            grant_type: 'refresh_token',
+                            refresh_token: refreshToken,
+                            client_id: clientId
+                        }),
+                    }
 
+                    const body = await fetch(url, payload);
+                    const response = await body.json();
 
+                    window.localStorage.setItem('access_token', response.access_token);
+                    window.localStorage.setItem('refresh_token', response.refresh_token);
+                    $scope.accessToken = response.access_token;
+                
+                }
+                
             }
-            
-            $scope.getToken();
 
+            $scope.getToken().then(function(){
+                $scope.getUserData();
+
+                //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
+
+            })
+            
+            
+            
 
 
         });

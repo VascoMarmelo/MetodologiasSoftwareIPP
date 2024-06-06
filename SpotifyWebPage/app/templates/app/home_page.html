@@ -22,54 +22,60 @@
         app.controller('myCtrlHomeApp', function($scope, $interval, $http){
             //Javascript
 
+            //Inicialização das cookies
+
             //id de serviço
             $scope.client_id = '82317a0473474f8d944323a93d488939';
 
             //Documentação do Spotify
-            $scope.loginCallBack = function(){
+            $scope.loginCallBack = async function(){
+
+                //Cookies inicializadas, para acesso às apis
+                window.localStorage.setItem('access_token', '');
+                window.localStorage.setItem('refresh_token', '');
+                window.localStorage.setItem('client_id', '82317a0473474f8d944323a93d488939');
+                window.localStorage.setItem('redirectUri', 'http://127.0.0.1:8000/perfil');
+
                 const generateRandomString = (length) => {
                     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
                     const values = crypto.getRandomValues(new Uint8Array(length));
                     return values.reduce((acc, x) => acc + possible[x % possible.length], "");
                 }
 
-                const sha256 = async (plain) => {
-                    const encoder = new TextEncoder()
-                    const data = encoder.encode(plain)
-                    return window.crypto.subtle.digest('SHA-256', data)
-                }
-                const base64encode = (input) => {
-                    return btoa(String.fromCharCode(...new Uint8Array(input)))
-                    .replace(/=/g, '')
-                    .replace(/\+/g, '-')
-                    .replace(/\//g, '_');
+                //Encriptação do CodeVerifier, para autenticação PKCE
+                async function generateCodeChallenge(codeVerifier) {
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
+                    const base64urlChallenge = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)))
+                        .replace(/=/g, '') // Remove padding for base64url encoding
+                        .replace(/\+/g, '-') // Replace '+' with '-' for url safety
+                        .replace(/\//g, '_'); // Replace '/' with '_' for url safety
+                    return base64urlChallenge;
                 }
 
                 const codeVerifier  = generateRandomString(64);
-                const hashed = sha256(codeVerifier)
-                const codeChallenge = base64encode(hashed);
+                let codeChallenge = await generateCodeChallenge(codeVerifier);
 
-                const clientId = '82317a0473474f8d944323a93d488939';
+                const clientId = $scope.client_id;
                 const redirectUri = 'http://127.0.0.1:8000/perfil';
                 const scope = 'user-read-private user-read-email';
                 const authUrl = new URL("https://accounts.spotify.com/authorize");
 
-                // generated in the previous step
+                // Guardar nas cookies o code verifier e client id
                 window.localStorage.setItem('code_verifier', codeVerifier);
+                window.localStorage.setItem('client_id', clientId);
 
+                //Autenticação na pagina do Spotify
                 const params =  {
                     response_type: 'code',
                     client_id: clientId,
-                    scope,
+                    scope: scope,
                     code_challenge_method: 'S256',
                     code_challenge: codeChallenge,
                     redirect_uri: redirectUri,
                 }
 
                 authUrl.search = new URLSearchParams(params).toString();
-                window.location.href = authUrl.toString();
-
-                
+                window.location.href = authUrl.toString();          
             }
         });
     </script>

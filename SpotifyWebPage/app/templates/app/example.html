@@ -14,14 +14,19 @@
                 First Name: <input type="text" ng-model="firstName"><br>
                 Last Name: <input type="text" ng-model="lastName"><br>
                 <br>
-                {% verbatim %}Full Name: {{firstName + " " + lastName}}{% endverbatim %}
+                
+                {% verbatim %}{{firstName}}{% endverbatim %}
             </div>
             <div class="row col-sm-6 container">
                 <button class="btn btn-primary" type="button" ng-click="buttonClick()">Botão de teste</button>  
             </div>
             <div class="row col-sm-6 container">
                 <button class="btn btn-primary" type="button" ng-click="callApi()">Botão da api</button>  
-            </div>        
+            </div>     
+            
+            <div ng-repeat="l in lista">
+                {% verbatim %}{{l.idade}}{% endverbatim %}
+            </div>
         </div>
                 
     </body>
@@ -33,6 +38,30 @@
             //No angular js, existe o objeto scope. Todos os dados/funções desta pagina tem de ser feitos com o scope:
             $scope.firstName= "John";
             $scope.lastName= "Doe";
+
+            $scope.lista = [{
+                nome: "a",
+                idade: 12,
+            }, {
+                nome: "a",
+                idade: 12,
+            }, {
+                nome: "a",
+                idade: 12,
+            }, {
+                nome: "3",
+                idade: 12,
+            }, {
+                nome: "546",
+                idade: 12,
+            }, {
+                nome: "a",
+                idade: 10,
+            }, {
+                nome: "325",
+                idade: 12,
+            }]
+
 
             /*
             APRESENTAR DADOS NA INTERFACE

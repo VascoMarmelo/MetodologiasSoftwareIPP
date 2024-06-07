@@ -14,7 +14,7 @@
                 </div>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <span class="nav-link">Utilizador: {{displayName}}</span>
+                        <span class="nav-link">Utilizador: {% verbatim %} {{userData.display_name}}  {% endverbatim %}  </span>                   
                     </li>
                     <li class="nav-item">
                         <span class="nav-link logout-button">LOGOUT</span>
@@ -22,6 +22,7 @@
                 </ul>
             </div>
         </nav>
+        <button ng-click="teste()"> </button>
     
 {% endblock %}
 
@@ -38,7 +39,8 @@
             $scope.code = window.location.search;
             $scope.code = $scope.code.split('=')[1];
             $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
-            
+            $scope.userData = {};
+
             $scope.getUserData = function(){
                 $http({
                     method: 'GET',
@@ -47,6 +49,22 @@
                 }).then(function successCallback(response) {
                     // Gere resposta, em caso de sucesso
                     $scope.userData = response.data; // Access the response data here
+                    console.log($scope.userData);
+                    
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }
+
+            $scope.getPlayList = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/browse/featured-playlists',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.playList = response.data; // Access the response data here
                     console.log($scope.userData);
                     
                 }, function errorCallback(error) {
@@ -118,7 +136,7 @@
 
             $scope.getToken().then(function(){
                 $scope.getUserData();
-                alert("bjkjf");
+                $scope.getPlayList();
 
                 //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
 

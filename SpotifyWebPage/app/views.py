@@ -6,12 +6,17 @@ import spotipy
 def index(request):
     return render(request, template_name='app/home_page.html')
 
-
 def app_example(request):
     return render(request, template_name='app/example.html')
 
 def app_profile(request):
     return render(request, 'app/profile_page.html')
+
+def app_artist(request):
+    return render(request, 'app/artist_page.html')
+
+def app_track(request):
+    return render(request, 'app/track_page.html')
 
 def recommendation_view(request):
     return render(request, 'app/recommendation.html') 

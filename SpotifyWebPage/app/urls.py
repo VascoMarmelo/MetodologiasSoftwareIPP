@@ -9,4 +9,6 @@ urlpatterns = [
     path('example/', views.app_example, name='app_example'),    
     path('perfil/', views.app_profile, name='app_profile'),
     path('recommendation/', views.recommendation_view, name='recommendation'),
+    path('artist/', views.app_artist, name='app_artist'),
+    path('track/', views.app_track, name='app_track'),
 ]

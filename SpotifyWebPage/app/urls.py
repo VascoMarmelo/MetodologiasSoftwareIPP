@@ -8,4 +8,5 @@ urlpatterns = [
     #path('', views.playlist_info, name='playlist_info'),
     path('example/', views.app_example, name='app_example'),    
     path('perfil/', views.app_profile, name='app_profile'),
+    path('recommendation/', views.recommendation_view, name='recommendation'),
 ]

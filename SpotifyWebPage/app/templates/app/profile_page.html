@@ -1,6 +1,28 @@
 {% extends 'app/base_page.html' %}
 {% load static %}
 
+{% block css %}
+<style>
+.random-music-btn {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.random-music-btn:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+</style>
+{% endblock %}
+
 <!--Corpo do perfil-->
 {% block navbar %}
     <div ng-controller="myCtrlPerfil">
@@ -156,6 +178,7 @@
 {% endblock %}
 
 {% block html %}
+
     <div class="container">
         <div class="column1">
             <h1>PERFIL</h1>
@@ -181,7 +204,9 @@
         <div class="column2">
             <div class="random-music">
                 <img src="{% static 'MADS.jpg' %}" alt="MADS" style="margin-bottom: 20px; width:400px; height:400px;">
-                <button class="random-music-btn">MÚSICA RECOMENDADA</button>
+                <a href="{% url 'recommendation' %}">
+                    <button class="random-music-btn">MÚSICA RECOMENDADA</button>
+                </a>
             </div>
         </div>
     </div>

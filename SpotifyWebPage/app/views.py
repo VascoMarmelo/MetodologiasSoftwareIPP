@@ -13,7 +13,8 @@ def app_example(request):
 def app_profile(request):
     return render(request, 'app/profile_page.html')
 
-
+def recommendation_view(request):
+    return render(request, 'app/recommendation.html') 
 
 # Defina suas credenciais do Spotify
 #client_id = 'd44f9f4644f34201be982cb94bc66fad'

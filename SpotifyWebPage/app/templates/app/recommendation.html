@@ -2,10 +2,21 @@
 {% load static %}
 
 {% block html %}
-
-    <div class="container">
-        <div class="column1">
-            <h1>MÚSICAS RECOMENDADAS</h1>
-        </div>
+<div class="container" ng-app="app" ng-controller="myCtrlPerfil">
+    <div class="column1">
+        <h1>MÚSICAS RECOMENDADAS</h1>
+        <ul>
+            <li ng-repeat="track in recommendations">
+                <p>{{ track.name }} - 
+                    <span ng-repeat="artist in track.artists">
+                        {{ artist.name }}<span ng-if="!$last">, </span>
+                    </span>
+                </p>
+                <audio controls ng-src="{{ track.preview_url }}">
+                    Seu navegador não suporta o elemento de áudio.
+                </audio>
+            </li>
+        </ul>
     </div>
+</div>
 {% endblock %}

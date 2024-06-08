@@ -1,28 +1,6 @@
 {% extends 'app/base_page.html' %}
 {% load static %}
 
-{% block css %}
-<style>
-.random-music-btn {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    transition: box-shadow 0.3s ease-in-out;
-}
-
-.random-music-btn:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-}
-</style>
-{% endblock %}
-
 <!--Corpo do perfil-->
 {% block navbar %}
     <div ng-controller="myCtrlPerfil">
@@ -63,6 +41,8 @@
             $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
             $scope.userData = {};
 
+            $scope.recommendations = [];
+
             $scope.getUserData = function(){
                 $http({
                     method: 'GET',
@@ -94,6 +74,30 @@
                     console.error('Error fetching data:', error);
                 });
             }
+
+
+            // Função para obter recomendações
+            $scope.getRecommendations = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/recommendations',
+                    headers: { Authorization: 'Bearer ' + $scope.accessToken},
+                    params: {
+                        limit: 10,
+                        seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
+                        seed_genres: 'classical,country',
+                        seed_tracks: '0c6xIDDpzE81m2q797ordA'
+                    }
+                }).then(function successCallback(response) {
+                    $scope.recommendations = response.data.tracks;
+                    console.log($scope.recommendations);
+                }, function errorCallback(error) {
+                    console.error('Error fetching recommendations:', error);
+                });
+            };
+
+
+
 
             $scope.getToken = async function() {
 
@@ -156,17 +160,18 @@
                 
             }
 
+    
+
             $scope.getToken().then(function(){
                 $scope.getUserData();
                 $scope.getPlayList();
+                $scope.getRecommendations(); // Chame a função para obter recomendações aqui
 
                 //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
 
             });
             
             
-            
-
 
         });
 
@@ -201,11 +206,18 @@
                 </ul>
             </section>
         </div>
+
+        <script>
+        $scope.buttonClick = function(){
+            alert("Carregou no botão"); 
+        }
+        </script>
+
         <div class="column2">
             <div class="random-music">
                 <img src="{% static 'MADS.jpg' %}" alt="MADS" style="margin-bottom: 20px; width:400px; height:400px;">
                 <a href="{% url 'recommendation' %}">
-                    <button class="random-music-btn">MÚSICA RECOMENDADA</button>
+                    <button class="random-music-btn" ng-click="buttonClick()">MÚSICA RECOMENDADA</button>
                 </a>
             </div>
         </div>

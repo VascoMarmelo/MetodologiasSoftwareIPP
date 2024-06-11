@@ -57,7 +57,7 @@
 
                 const clientId = $scope.client_id;
                 const redirectUri = 'http://127.0.0.1:8000/perfil';
-                const scope = 'user-read-private user-read-email';
+                const scope = 'user-read-private user-read-email user-follow-read playlist-modify-public';
                 const authUrl = new URL("https://accounts.spotify.com/authorize");
 
                 // Guardar nas cookies o code verifier e client id

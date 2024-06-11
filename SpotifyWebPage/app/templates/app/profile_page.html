@@ -9,26 +9,22 @@
                 <img src="{% static 'MADS.jpg' %}" width="40" height="40" alt="MADS Logo">
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'app_profile' %}">Perfil</a>
+                        <a class="nav-link" style="cursor:pointer" href="{% url 'app_profile' %}">Perfil</a>
                     </div>
                 </div>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <span class="nav-link">Utilizador: {% verbatim %} {{userData.display_name}}  {% endverbatim %}  </span>                   
+                        <span class="nav-link" style="cursor:pointer">Utilizador: {% verbatim %} {{userData.display_name}}  {% endverbatim %}  </span>                   
                     </li>
                     <li class="nav-item">
                         <span class="nav-link logout-button">LOGOUT</span>
                     </li>
                 </ul>
             </div>
-        </nav>       
-    
+        </nav>    
 {% endblock %}
 
-
-
 {% block script %}
-
     <script>
         app.controller('myCtrlPerfil', function($scope, $interval, $http, $location){
             //Javascript
@@ -36,11 +32,15 @@
             //Inicialização de variaveis
             $scope.client_id = window.localStorage.getItem('client_id');
             $scope.code = window.location.search;
-            $scope.code = $scope.code.split('=')[1];
-            $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
-            $scope.userData = {};
-
+            $scope.code = $scope.code.split('=')[1];            
+            window.localStorage.setItem('code', $scope.code);            
+            $scope.accessToken = '';    // O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
+            
+            $scope.userData = {};            
             $scope.recommendations = [];
+
+            $scope.userArtists = {};
+            $scope.userTracks = {};
 
             $scope.getUserData = function(){
                 $http({
@@ -74,7 +74,6 @@
                 });
             }
 
-
             // Função para obter recomendações
             $scope.getRecommendations = function(){
                 $http({
@@ -95,8 +94,36 @@
                 });
             };
 
+            $scope.getUserArtist = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/me/following',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                    params: {
+                        type: 'artist',
+                        limit: 10,
+                    }
+                }).then(function successCallback(response) {                    
+                    $scope.userArtist = response.data; 
+                    console.log($scope.userArtist);                                                                           
+                }, function errorCallback(error) {                    
+                    console.error('Error fetching data:', error);
+                });
+            }
 
-
+            $scope.getUserTracks = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/me/tracks',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                    
+                }).then(function successCallback(response) {                    
+                    $scope.userTracks = response.data;                     
+                    
+                }, function errorCallback(error) {                    
+                    console.error('Error fetching data:', error);
+                });
+            }
 
             $scope.getToken = async function() {
 
@@ -131,7 +158,7 @@
                 }
                 //Refresh
                 else{
-                    
+
                     // refresh token that has been previously stored
                     const refreshToken = window.localStorage.getItem('refresh_token');
                     const url = "https://accounts.spotify.com/api/token";
@@ -153,48 +180,60 @@
 
                     window.localStorage.setItem('access_token', response.access_token);
                     window.localStorage.setItem('refresh_token', response.refresh_token);
-                    $scope.accessToken = response.access_token;
-                
-                }
-                
+                    $scope.accessToken = response.access_token;                
+                }                
             }
-
-    
 
             $scope.getToken().then(function(){
                 $scope.getUserData();
                 $scope.getPlayList();
-                $scope.getRecommendations(); // Chame a função para obter recomendações aqui
+                $scope.getRecommendations(); 
 
-                //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
-
+                $scope.getUserArtist();
+                $scope.getUserTracks();               
             });
-            
-            
 
+            $scope.artistBtn = function(artistId) {
+                var url = '/artist/' + artistId + '/';
+                window.location.href = url;    
+            };
+
+            $scope.trackBtn = function(trackId) {
+                var url = '/track/' + trackId + '/';
+                window.location.href = url;    
+            };
         });
-
-            
-
-
     </script>
 
 {% endblock %}
 
 {% block html %}
-
     <div class="container">
         <div class="column1">
             <h1>PERFIL</h1>
             <section class="section">
                 <h2>LISTA DE ARTISTAS</h2>
                 <ul class="list">
-                    <li>Artista A <button>Info</button></li>
-                    <li>Artista B <button>Info</button></li>
-                    <li>Artista C <button>Info</button></li>
-                    <li>Artista D <button>Info</button></li>
+                    <li>
+                        {% verbatim %} {{userArtist.artists.items[0].name}} {% endverbatim %}
+                        <button ng-click="artistBtn(userArtist.artists.items[0].id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userArtist.artists.items[1].name}} {% endverbatim %}
+                        <button ng-click="artistBtn(userArtist.artists.items[1].id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userArtist.artists.items[2].name}} {% endverbatim %}
+                        <button ng-click="artistBtn(userArtist.artists.items[2].id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userArtist.artists.items[3].name}} {% endverbatim %}
+                        <button ng-click="artistBtn(userArtist.artists.items[3].id)">Info</button>
+                    </li>
                 </ul>
+                              
             </section>
+
             <section class="section">
                 <h2>PLAYLISTS</h2>
                 <ul class="list">
@@ -208,19 +247,25 @@
             <section class="section">
                 <h2>MUSICAS</h2>
                 <ul class="list">
-                    <li>MUSICA A <button>Info</button></li>
-                    <li>MUSICA B <button>Info</button></li>
-                    <li>MUSICA C <button>Info</button></li>
-                    <li>MUSICA D <button>Info</button></li>
+                    <li>
+                        {% verbatim %} {{userTracks.items[0].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[0].track.id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userTracks.items[1].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[1].track.id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userTracks.items[2].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[2].track.id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userTracks.items[3].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[3].track.id)">Info</button>
+                    </li>
                 </ul>
             </section>
         </div>
-
-        <script>
-        $scope.buttonClick = function(){
-            alert("Carregou no botão"); 
-        }
-        </script>
 
         <div class="column2">
             <div class="random-music">

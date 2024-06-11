@@ -12,11 +12,11 @@ def app_example(request):
 def app_profile(request):
     return render(request, 'app/profile_page.html')
 
-def app_artist(request):
-    return render(request, 'app/artist_page.html')
+def app_artist(request, id):    
+    return render(request, 'app/artist_page.html', {'artist_id': id})
 
-def app_track(request):
-    return render(request, 'app/track_page.html')
+def app_track(request, id):
+    return render(request, 'app/track_page.html', {'track_id': id})
 
 def recommendation_view(request):
     return render(request, 'app/recommendation.html') 

@@ -1,42 +1,20 @@
 {% extends 'app/base_page.html' %}
 {% load static %}
 
-{% block css %}
-<style>
-.random-music-btn {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    transition: box-shadow 0.3s ease-in-out;
-}
-
-.random-music-btn:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-}
-</style>
-{% endblock %}
-
-<!--Corpo do perfil-->
-{% block navbar %}
-    <div ng-controller="myCtrlPerfil">
+{% block navbar %}    
+    <input type="hidden" id="artistIdInput" value="{{ artist_id }}">
+    <div ng-controller="myCtrlArtist" ng-init="init1()">
         <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #545454;">
             <div class="container-fluid">
-                <img src="{% static 'MADS.jpg' %}" width="40" height="40" alt="MADS Logo">
+                <img style="cursor:pointer" ng-click="refreshBtn()" src="{% static 'MADS.jpg' %}" width="40" height="40" alt="MADS Logo">
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
-                        <a class="nav-link" href="{% url 'app_profile' %}">Perfil</a>
+                        <a class="nav-link" style="cursor:pointer" ng-click="refreshBtn()">Artista</a>
                     </div>
                 </div>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <span class="nav-link">Utilizador: {% verbatim %} {{userData.display_name}}  {% endverbatim %}  </span>                   
+                        <span class="nav-link" style="cursor: pointer;">Utilizador: {% verbatim %} {{userData.display_name}} {% endverbatim %}</span>
                     </li>
                     <li class="nav-item">
                         <span class="nav-link logout-button">LOGOUT</span>
@@ -44,65 +22,50 @@
                 </ul>
             </div>
         </nav>
-    
+    </div>
 {% endblock %}
 
-
-
 {% block script %}
-
-    <script>
-        app.controller('myCtrlPerfil', function($scope, $interval, $http, $location){
-            //Javascript
-
-            //Inicialização de variaveis
+<script>       
+        app.controller('myCtrlArtist', function($scope, $interval, $http, $location){                       
             $scope.client_id = window.localStorage.getItem('client_id');
-            $scope.code = window.location.search;
-            $scope.code = $scope.code.split('=')[1];
-            $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
+            $scope.code = window.localStorage.getItem('code');                        
+            $scope.accessToken = window.localStorage.getItem('access_token');;
+            
             $scope.userData = {};
+            $scope.artistData = {};
+            $scope.artistId = document.getElementById('artistIdInput').value;
 
             $scope.getUserData = function(){
                 $http({
                     method: 'GET',
                     url: 'https://api.spotify.com/v1/me',
                     headers: {Authorization: 'Bearer ' + $scope.accessToken},
-                }).then(function successCallback(response) {
-                    // Gere resposta, em caso de sucesso
-                    $scope.userData = response.data; // Access the response data here
-                    console.log($scope.userData);
-                    
-                }, function errorCallback(error) {
-                    // Gere resposta, em caso de falha
+                }).then(function successCallback(response) {                    
+                    $scope.userData = response.data;                                       
+                }, function errorCallback(error) {                    
                     console.error('Error fetching data:', error);
                 });
-            }
-
-            $scope.getPlayList = function(){
+            }           
+            
+            $scope.getCurrentArtist = function(){
                 $http({
                     method: 'GET',
-                    url: 'https://api.spotify.com/v1/browse/featured-playlists',
-                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
-                }).then(function successCallback(response) {
-                    // Gere resposta, em caso de sucesso
-                    $scope.playList = response.data; // Access the response data here
-                    console.log($scope.userData);
+                    url: 'https://api.spotify.com/v1/artists/' + $scope.artistId,
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},                                      
+                }).then(function successCallback(response) {                    
+                    $scope.artistData = response.data;                     
                     
-                }, function errorCallback(error) {
-                    // Gere resposta, em caso de falha
+                }, function errorCallback(error) {                    
                     console.error('Error fetching data:', error);
                 });
             }
 
             $scope.getToken = async function() {
-
                 const clientId = window.localStorage.getItem('client_id');
-                const redirectUri = window.localStorage.getItem('redirectUri');
+                const redirectUri = window.localStorage.getItem('redirectUri');                             
                 
-                //Primeira Vez que acede-se à pagina
-                if (window.localStorage.getItem('refresh_token') == ''){
-
-                    // stored in the previous step
+                if (window.localStorage.getItem('refresh_token') == ''){                                      
                     let codeVerifier = window.localStorage.getItem('code_verifier');             
 
                     const payload = {
@@ -125,10 +88,8 @@
                     window.localStorage.setItem('refresh_token', response.refresh_token);
                     $scope.accessToken = response.access_token;
                 }
-                //Refresh
-                else{
-                    
-                    // refresh token that has been previously stored
+                
+                else {                   
                     const refreshToken = window.localStorage.getItem('refresh_token');
                     const url = "https://accounts.spotify.com/api/token";
 
@@ -151,77 +112,64 @@
                     window.localStorage.setItem('refresh_token', response.refresh_token);
                     $scope.accessToken = response.access_token;
                 
-                }
-                
+                }                
             }
 
-            $scope.getToken().then(function(){
-                $scope.getUserData();
-                $scope.getPlayList();
+            $scope.init1 = function() {
+                $scope.getToken().then(function(){
+                    $scope.getUserData();
+                    $scope.getCurrentArtist();                  
+                });
+            };  
 
-                //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
+            $scope.init2 = function() {  
+                $scope.getUserData();                                 
+                $scope.getCurrentArtist();               
+            };              
+            
+            $scope.backBtn = function() { 
+                var url = '/perfil/';
+                window.location.href = url;                                
+            };
 
-            });          
-
-
+            $scope.refreshBtn = function() { 
+                var url = '/artist/' + $scope.artistId;
+                window.location.href = url;                                
+            };             
         });
 
-            
-
-
-    </script>
-
+    </script>    
 {% endblock %}
 
 {% block html %}
-
-    <div class="container">
+    <div class="container" ng-controller="myCtrlArtist" ng-init="init2()">
         <div class="column1">
-            <h1>PERFIL</h1>
-            <section class="section">
-                <h2>LISTA DE ARTISTAS</h2>
-                <ul class="list">
-                    <li>Artista A <button>Info</button></li>
-                    <li>Artista B <button>Info</button></li>
-                    <li>Artista C <button>Info</button></li>
-                    <li>Artista D <button>Info</button></li>
-                </ul>
-            </section>
-            <section class="section">
-                <h2>PLAYLISTS</h2>
-                <ul class="list">
-                    <li>PLAYLIST A <button>Info</button></li>
-                    <li>PLAYLIST B <button>Info</button></li>
-                    <li>PLAYLIST C <button>Info</button></li>
-                    <li>PLAYLIST D <button>Info</button></li>
-                </ul>
-            </section>
-
-            <section class="section">
-                <h2>MÚSICAS</h2>
-                <ul class="list">
-                    <li>MÚSICA A <button>Info</button></li>
-                    <li>MÚSICA B <button>Info</button></li>
-                    <li>MÚSICA C <button>Info</button></li>
-                    <li>MÚSICA D <button>Info</button></li>
-                </ul>
-            </section>
-        </div>
-        <div class="column2">
-            <div class="random-music">
-                <img src="{% static 'MADS.jpg' %}" alt="MADS" style="margin-bottom: 20px; width:400px; height:400px;">
-                <a href="{% url 'recommendation' %}">
-                    <button class="random-music-btn">MÚSICA RECOMENDADA</button>
-                </a>
+            <div class="d-flex align-items-center">
+                <h1>ARTISTA</h1>
+                <h2 style="margin-left:100px; margin-bottom:50px; width:300px;color:#aaa">{% verbatim %} {{artistData.name}} {% endverbatim %}</h2>
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    <div class="artist-info text-center">
+                        <section class="section">
+                            <ul class="list">
+                                <img src="{% verbatim %} {{artistData.images[0].url}} {% endverbatim %}" style="width:250px; height:250px;" >
+                            </ul>
+                        </section>
+                    </div>
+                </div>
+                <section class="section">
+                    <h2 style="margin-bottom: 20px;">INFORMAÇÕES</h2>
+                    <h2 style="margin-left: 60px; margin-bottom: 20px;">Estilo Musical - {% verbatim %} {{artistData.genres[0]}} {% endverbatim %} </h2>
+                    <h2 style="margin-left: 60px; margin-bottom: 20px;">Seguidores - {% verbatim %} {{artistData.followers.total}} {% endverbatim %}</h2>
+                    <h2 style="margin-left: 60px; margin-bottom: 20px;">Popularidade - {% verbatim %} {{artistData.popularity}} {% endverbatim %}</h2>
+                    <h2 style="margin-left: 60px; margin-bottom: 20px; width:1400px;">Link para o Spotify - <a href="{% verbatim %} {{artistData.external_urls.spotify}} {% endverbatim %}" target="_blank">Clique aqui</a></h2>
+                    <button ng-click="backBtn()"style="margin-top: 50px; width: 150px;"class="btn btn-warning mt-6">Voltar</button>
+                </section>
             </div>
         </div>
     </div>
-
-    <div class="bot">
-        <div class="header">MADS BOT</div>
-        <div class="content">
-            <!-- Bot messages go here -->
-        </div>
+    <div class="column3">
+        <img src="{% static 'MADS.jpg' %}" alt="MADS" style="margin-bottom: 50px; margin-left: 100px; width:300px; height:300px;">
     </div>
-</div>
 {% endblock %}

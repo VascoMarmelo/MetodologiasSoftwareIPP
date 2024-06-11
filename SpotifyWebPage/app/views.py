@@ -1,10 +1,10 @@
 from django.shortcuts import render
-import spotipy
 #from spotipy.oauth2 import SpotifyOAuth
 
 
 def index(request):
     return render(request, template_name='app/home_page.html')
+
 
 def app_example(request):
     return render(request, template_name='app/example.html')
@@ -12,11 +12,32 @@ def app_example(request):
 def app_profile(request):
     return render(request, 'app/profile_page.html')
 
-def app_artist(request):
-    return render(request, 'app/artist_page.html')
+def infopage(request):
+    return render(request, 'app/infopage.html')
 
-def app_track(request):
-    return render(request, 'app/track_page.html')
+def infopageArt0(request):
+    return render(request, 'app/infopageArt0.html')
+
+def infopageArt1(request):
+    return render(request, 'app/infopageArt1.html')
+
+def infopageArt2(request):
+    return render(request, 'app/infopageArt2.html')
+
+def infopageplay0(request):
+    return render(request, 'app/infopageplay0.html')
+
+def infopageplay1(request):
+    return render(request, 'app/infopageplay1.html')
+
+def infopageplay2(request):
+    return render(request, 'app/infopageplay2.html')
+
+def infopageplay3(request):
+    return render(request, 'app/infopageplay3.html')
+
+def chatboot(request):
+    return render(request, 'app/chatboot.html')
 
 def recommendation_view(request):
     return render(request, 'app/recommendation.html') 

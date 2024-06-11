@@ -1,6 +1,28 @@
 {% extends 'app/base_page.html' %}
 {% load static %}
 
+{% block css %}
+<style>
+.random-music-btn {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.random-music-btn:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+</style>
+{% endblock %}
+
 <!--Corpo do perfil-->
 {% block navbar %}
     <div ng-controller="myCtrlPerfil">
@@ -21,7 +43,9 @@
                     </li>
                 </ul>
             </div>
-        </nav>       
+        </nav>
+        <button ng-click="teste()"> </button>
+
     
 {% endblock %}
 
@@ -40,8 +64,6 @@
             $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
             $scope.userData = {};
 
-            $scope.recommendations = [];
-
             $scope.getUserData = function(){
                 $http({
                     method: 'GET',
@@ -51,12 +73,50 @@
                     // Gere resposta, em caso de sucesso
                     $scope.userData = response.data; // Access the response data here
                     console.log($scope.userData);
-                    
+
                 }, function errorCallback(error) {
                     // Gere resposta, em caso de falha
                     console.error('Error fetching data:', error);
                 });
             }
+            $scope.getArtist= function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/me/following',
+                    params: { type: 'artist' },
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.userArtist = response.data; // Access the response data here
+                    console.log($scope.userArtist);
+                    console.log($scope.userArtist.artists.items[0].name[0]);
+
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }
+
+
+
+
+$scope.getRespChat = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/search',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                     params: { type: 'artist' },
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.chatbot = response.data; // Access the response data here
+                    console.log($scope.chatbot);
+
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }
+
 
             $scope.getPlayList = function(){
                 $http({
@@ -73,30 +133,6 @@
                     console.error('Error fetching data:', error);
                 });
             }
-
-
-            // Função para obter recomendações
-            $scope.getRecommendations = function(){
-                $http({
-                    method: 'GET',
-                    url: 'https://api.spotify.com/v1/recommendations',
-                    headers: { Authorization: 'Bearer ' + $scope.accessToken},
-                    params: {
-                        limit: 10,
-                        seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
-                        seed_genres: 'classical,country',
-                        seed_tracks: '0c6xIDDpzE81m2q797ordA'
-                    }
-                }).then(function successCallback(response) {
-                    $scope.recommendations = response.data.tracks;
-                    console.log($scope.recommendations);
-                }, function errorCallback(error) {
-                    console.error('Error fetching recommendations:', error);
-                });
-            };
-
-
-
 
             $scope.getToken = async function() {
 
@@ -159,18 +195,19 @@
                 
             }
 
-    
-
             $scope.getToken().then(function(){
                 $scope.getUserData();
                 $scope.getPlayList();
-                $scope.getRecommendations(); // Chame a função para obter recomendações aqui
+                $scope.getArtist();
+                $scope.getRespChat();
 
                 //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
 
             });
             
             
+            
+
 
         });
 
@@ -182,61 +219,63 @@
 {% endblock %}
 
 {% block html %}
-
-    <div class="container">
+<div class="container">
         <div class="column1">
             <h1>PERFIL</h1>
             <section class="section">
                 <h2>LISTA DE ARTISTAS</h2>
+
                 <ul class="list">
-                    <li>Artista A <button>Info</button></li>
-                    <li>Artista B <button>Info</button></li>
-                    <li>Artista C <button>Info</button></li>
-                    <li>Artista D <button>Info</button></li>
+                    <li>{% verbatim %}{{userArtist.artists.items[0].name}}{% endverbatim %} <button><a href=" {% url 'infopageArt0' %}">Info</a></button></li>
+                    <li>{% verbatim %}{{userArtist.artists.items[1].name}}{% endverbatim %}<button><a href=" {% url 'infopageArt1' %}">Info</a></button></li>
+                    <li>{% verbatim %}{{userArtist.artists.items[2].name}}{% endverbatim %} <button><a href=" {% url 'infopageArt2'  %}">Info</a></button></li>
+
                 </ul>
             </section>
             <section class="section">
                 <h2>PLAYLISTS</h2>
-                <ul class="list">
-                    <li>PLAYLIST A <button>Info</button></li>
-                    <li>PLAYLIST B <button>Info</button></li>
-                    <li>PLAYLIST C <button>Info</button></li>
-                    <li>PLAYLIST D <button>Info</button></li>
-                </ul>
-            </section>
 
-            <section class="section">
-                <h2>MUSICAS</h2>
                 <ul class="list">
-                    <li>MUSICA A <button>Info</button></li>
-                    <li>MUSICA B <button>Info</button></li>
-                    <li>MUSICA C <button>Info</button></li>
-                    <li>MUSICA D <button>Info</button></li>
+                    <li>{% verbatim %} {{playList.playlists.items[0].name}} {% endverbatim %} <button><a href=" {% url 'infopageplay0' %}">Info</a></button></li>
+                    <li>{% verbatim %} {{playList.playlists.items[1].name}} {% endverbatim %} <button><a href=" {% url 'infopageplay1' %}">Info</a></button></li>
+                    <li>{% verbatim %} {{playList.playlists.items[2].name}} {% endverbatim %} <button><a href=" {% url 'infopageplay2' %}">Info</a></button></li>
+                    <li>{% verbatim %} {{playList.playlists.items[3].name}} {% endverbatim %} <button><a href=" {% url 'infopageplay3' %}">Info</a></button></li>
                 </ul>
             </section>
         </div>
-
-        <script>
-        $scope.buttonClick = function(){
-            alert("Carregou no botão"); 
-        }
-        </script>
-
         <div class="column2">
             <div class="random-music">
                 <img src="{% static 'MADS.jpg' %}" alt="MADS" style="margin-bottom: 20px; width:400px; height:400px;">
                 <a href="{% url 'recommendation' %}">
-                    <button class="random-music-btn" ng-click="buttonClick()">MÚSICA RECOMENDADA</button>
+                    <button class="random-music-btn">MÚSICA RECOMENDADA</button>
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="bot">
-        <div class="header">MADS BOT</div>
-        <div class="content">
-            <!-- Bot messages go here -->
-        </div>
-    </div>
+
 </div>
+
+
+
+<button class="chatbot-toggler">
+      <span class="material-symbols-rounded">mode_comment</span>
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <div class="chatbot">
+      <header>
+        <h2>Chatbot</h2>
+        <span class="close-btn material-symbols-outlined">close</span>
+      </header>
+      <ul class="chatbox">
+        <li class="chat incoming">
+          <span class="material-symbols-outlined">smart_toy</span>
+          <p>Hi there 👋<br>How can I help you today?</p>
+        </li>
+      </ul>
+      <div class="chat-input">
+        <textarea placeholder="Enter a message..." spellcheck="false" required></textarea>
+        <span id="send-btn" class="material-symbols-rounded">send</span>
+      </div>
+    </div>
 {% endblock %}

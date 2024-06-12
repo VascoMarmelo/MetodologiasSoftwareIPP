@@ -77,7 +77,7 @@
             }
 
             $scope.trackID = '';
-            $scope.musicMatchTrackSearch = function(){
+            $scope.musicMatchLyrics = function(){
                 let trackName = "Cut To The Feeling";   //Apanha-se a partir do Get Track do Spotify API
                 let artistName = "Carly Rae Jepsen";    //Apanha-se a partir do Get Track do Spotify API
                 let track_id = '';
@@ -110,7 +110,7 @@
                 });  
             } 
 
-            //$scope.musicMatchTrackSearch();
+            $scope.musicMatchLyrics();
 
             $scope.getTrackList = function(){
                 $http({   

@@ -7,6 +7,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <script src="{% static 'libs/angular.min.js' %}"></script>
+        <script type="text/javascript" src="http://tracking.musixmatch.com/t1.0/AMa6hJCIEzn1v8RuOP"></script>
     </header>
     <body>
         <div class="container" ng-app="myApp" ng-controller="myCtrl"> 
@@ -62,7 +63,54 @@
                 idade: 12,
             }]
 
+            
+            $scope.musicMatchArtist = function(){
+                $http({   
+                    url: 'https://corsproxy.io/?https://api.musixmatch.com/ws/1.1/chart.artists.get',
+                    method: 'GET',
+                    params: {apikey: '1eda5b964243edf3e5ea0a46c498aae3', page:10,page_size:5,country:'it'},
+                }).then((response) => {
+                    // Gere resposta, em caso de sucesso
+                    $scope.data = response.body; // Access the response data here
+                    console.log($scope.data);
+                });
+            }
 
+            $scope.trackID = '';
+            $scope.musicMatchTrackSearch = function(){
+                let trackName = "Cut To The Feeling";   //Apanha-se a partir do Get Track do Spotify API
+                let artistName = "Carly Rae Jepsen";    //Apanha-se a partir do Get Track do Spotify API
+                let track_id = '';
+                
+                //API CALL for track_id
+                $http({   
+                    url: 'https://corsproxy.io/?https://api.musixmatch.com/ws/1.1/track.search',
+                    method: 'GET',
+                    params: {apikey: '1eda5b964243edf3e5ea0a46c498aae3', q_track: trackName, q_artist: artistName},
+                }).then((response) => {
+                    console.log(response.data.message.body);
+                    for (t of response.data.message.body.track_list){
+                        if (trackName === t.track.track_name){  //Caso retorne mais do que 1 musica, escolher aquela que o nome é exatamente igual
+                            track_id = t.track.track_id;    
+                            break;
+                        }                                        
+                    }                              
+                }).then(() => {
+                    //API CALL for Lyrics
+                    $http({   
+                        url: 'https://corsproxy.io/?https://api.musixmatch.com/ws/1.1/track.lyrics.get',                   
+                        method: 'GET',
+                        params: {apikey: '1eda5b964243edf3e5ea0a46c498aae3', track_id: track_id},
+                    }).then((response) => {
+                        // Gere resposta, em caso de sucesso
+                        //$scope.data = response.body; // Access the response data here
+                        $scope.lyrics = response.data.message.body.lyrics.lyrics_body;
+                        console.log($scope.lyrics);             
+                    });
+                });  
+            } 
+
+            $scope.musicMatchTrackSearch();
             /*
             APRESENTAR DADOS NA INTERFACE
             Para mostrar é usar algo como {% verbatim %} {{ firstname }} {% endverbatim %}

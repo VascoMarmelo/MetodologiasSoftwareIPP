@@ -110,7 +110,20 @@
                 });  
             } 
 
-            $scope.musicMatchTrackSearch();
+            //$scope.musicMatchTrackSearch();
+
+            $scope.getTrackList = function(){
+                $http({   
+                    url: 'https://corsproxy.io/?https://api.musixmatch.com/ws/1.1/chart.tracks.get',
+                    method: 'GET',
+                    params: {apikey: '1eda5b964243edf3e5ea0a46c498aae3', chart_name: 'top', page: 1, page_size: 10, f_has_lyrics: 1},
+                }).then((response) => {
+                    console.log(response.data.message.body);
+                    $scope.trackList = response.data.message.body.track_list;
+                    console.log($scope.trackList);                      
+                })
+            }
+            $scope.getTrackList();
             /*
             APRESENTAR DADOS NA INTERFACE
             Para mostrar é usar algo como {% verbatim %} {{ firstname }} {% endverbatim %}

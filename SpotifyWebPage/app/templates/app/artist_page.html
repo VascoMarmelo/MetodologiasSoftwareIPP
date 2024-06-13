@@ -9,7 +9,7 @@
                 <img style="cursor:pointer" ng-click="refreshBtn()" src="{% static 'MADS.jpg' %}" width="40" height="40" alt="MADS Logo">
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
-                        <a class="nav-link" style="cursor:pointer" ng-click="refreshBtn()">Artista</a>
+                        <a class="nav-link" href="{% url 'app_profile' %}">Perfil</a>
                     </div>
                 </div>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -130,12 +130,7 @@
             $scope.backBtn = function() { 
                 var url = '/perfil/';
                 window.location.href = url;                                
-            };
-
-            $scope.refreshBtn = function() { 
-                var url = '/artist/' + $scope.artistId;
-                window.location.href = url;                                
-            };             
+            };                       
         });
 
     </script>    
@@ -164,12 +159,12 @@
                     <h2 style="margin-left: 60px; margin-bottom: 20px;">Seguidores - {% verbatim %} {{artistData.followers.total}} {% endverbatim %}</h2>
                     <h2 style="margin-left: 60px; margin-bottom: 20px;">Popularidade - {% verbatim %} {{artistData.popularity}} {% endverbatim %}</h2>
                     <h2 style="margin-left: 60px; margin-bottom: 20px; width:1400px;">Link para o Spotify - <a href="{% verbatim %} {{artistData.external_urls.spotify}} {% endverbatim %}" target="_blank">Clique aqui</a></h2>
-                    <button ng-click="backBtn()"style="margin-top: 50px; width: 150px;"class="btn btn-warning mt-6">Voltar</button>
+                    <button ng-click="backBtn()"style="margin-top: 50px; width: 200px;"class="btn btn-warning mt-6">Voltar</button>
                 </section>
             </div>
         </div>
     </div>
-    <div class="column3">
+    <!-- <div class="column3">
         <img src="{% static 'MADS.jpg' %}" alt="MADS" style="margin-bottom: 50px; margin-left: 100px; width:300px; height:300px;">
-    </div>
+    </div> -->
 {% endblock %}

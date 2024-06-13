@@ -27,8 +27,6 @@
 {% block script %}
     <script>
         app.controller('myCtrlPerfil', function($scope, $interval, $http, $location){
-            //Javascript
-
             //Inicialização de variaveis
             $scope.client_id = window.localStorage.getItem('client_id');
             $scope.code = window.location.search;
@@ -37,8 +35,6 @@
             $scope.accessToken = '';    // O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
             
             $scope.userData = {};            
-            $scope.recommendations = [];
-
             $scope.userArtists = {};
             $scope.userTracks = {};
 
@@ -58,42 +54,6 @@
                 });
             }
 
-            $scope.getPlayList = function(){
-                $http({
-                    method: 'GET',
-                    url: 'https://api.spotify.com/v1/browse/featured-playlists',
-                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
-                }).then(function successCallback(response) {
-                    // Gere resposta, em caso de sucesso
-                    $scope.playList = response.data; // Access the response data here
-                    console.log($scope.userData);
-                    
-                }, function errorCallback(error) {
-                    // Gere resposta, em caso de falha
-                    console.error('Error fetching data:', error);
-                });
-            }
-
-            // Função para obter recomendações
-            $scope.getRecommendations = function(){
-                $http({
-                    method: 'GET',
-                    url: 'https://api.spotify.com/v1/recommendations',
-                    headers: { Authorization: 'Bearer ' + $scope.accessToken},
-                    params: {
-                        limit: 10,
-                        seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
-                        seed_genres: 'classical,country',
-                        seed_tracks: '0c6xIDDpzE81m2q797ordA'
-                    }
-                }).then(function successCallback(response) {
-                    $scope.recommendations = response.data.tracks;
-                    console.log($scope.recommendations);
-                }, function errorCallback(error) {
-                    console.error('Error fetching recommendations:', error);
-                });
-            };
-
             $scope.getUserArtist = function(){
                 $http({
                     method: 'GET',
@@ -111,6 +71,22 @@
                 });
             }
 
+            $scope.getPlayList = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/browse/featured-playlists',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.playList = response.data; // Access the response data here
+                    console.log($scope.userData);
+                    
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }        
+
             $scope.getUserTracks = function(){
                 $http({
                     method: 'GET',
@@ -123,10 +99,43 @@
                 }, function errorCallback(error) {                    
                     console.error('Error fetching data:', error);
                 });
+            }            
+            
+            function displayRecommendations(tracks) {
+                const recommendationsDiv = document.getElementById('recommendations');
+                recommendationsDiv.innerHTML = '';
+
+                tracks.forEach(track => {
+                    const trackElement = document.createElement('div');
+                    trackElement.innerHTML = `
+                        <p><strong>Track:</strong> ${track.name}</p>
+                        <p><strong>Artist:</strong> ${track.artists.map(artist => artist.name).join(', ')}</p>
+                        <p><strong>Album:</strong> ${track.album.name}</p>
+                        <a href="${track.external_urls.spotify}" target="_blank">Listen on Spotify</a>
+                        <hr>
+                    `;
+                    recommendationsDiv.appendChild(trackElement);
+                });
             }
 
-            $scope.getToken = async function() {
+            $scope.getRespChat = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/search',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                     params: { type: 'artist' },
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.chatbot = response.data; // Access the response data here
+                    console.log($scope.chatbot);
 
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }      
+
+            $scope.getToken = async function() {
                 const clientId = window.localStorage.getItem('client_id');
                 const redirectUri = window.localStorage.getItem('redirectUri');
                 
@@ -185,12 +194,24 @@
             }
 
             $scope.getToken().then(function(){
-                $scope.getUserData();
-                $scope.getPlayList();
-                $scope.getRecommendations(); 
-
+                $scope.getUserData();                
                 $scope.getUserArtist();
-                $scope.getUserTracks();               
+                $scope.getPlayList(); 
+                $scope.getUserTracks();
+                
+                // Chamando a função getRecommendations com opções de exemplo
+                // const options = {
+                //     seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
+                //     seed_genres: 'pop',
+                //     seed_tracks: '0c6xIDDpzE81m2q797ordA',
+                //     limit: 10,
+                //     market: 'BR',
+                //     min_energy: 0.4,
+                //     max_energy: 0.8
+                // };
+                // $scope.getRecommendations(options);     
+                
+                $scope.getRespChat();
             });
 
             $scope.artistBtn = function(artistId) {
@@ -200,6 +221,10 @@
 
             $scope.trackBtn = function(trackId) {
                 var url = '/track/' + trackId + '/';
+                window.location.href = url;    
+            };
+
+            $scope.playListBtn = function(url) {              
                 window.location.href = url;    
             };
         });
@@ -237,10 +262,23 @@
             <section class="section">
                 <h2>PLAYLISTS</h2>
                 <ul class="list">
-                    <li>PLAYLIST A <button>Info</button></li>
-                    <li>PLAYLIST B <button>Info</button></li>
-                    <li>PLAYLIST C <button>Info</button></li>
-                    <li>PLAYLIST D <button>Info</button></li>
+                    <li>
+                        {% verbatim %} {{playList.playlists.items[0].name}} {% endverbatim %}
+                        <button ng-click="playListBtn('{% url 'infopageplay0' %}')">Info</button>
+                    </li>
+
+                    <li>
+                        {% verbatim %} {{playList.playlists.items[1].name}} {% endverbatim %}
+                        <button ng-click="playListBtn('{% url 'infopageplay0' %}')">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{playList.playlists.items[2].name}} {% endverbatim %}
+                        <button ng-click="playListBtn('{% url 'infopageplay2' %}')">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{playList.playlists.items[3].name}} {% endverbatim %}
+                        <button ng-click="playListBtn('{% url 'infopageplay3' %}')">Info</button>
+                    </li>
                 </ul>
             </section>
 
@@ -271,17 +309,31 @@
             <div class="random-music">
                 <img src="{% static 'MADS.jpg' %}" alt="MADS" style="margin-bottom: 20px; width:400px; height:400px;">
                 <a href="{% url 'recommendation' %}">
-                    <button class="random-music-btn" ng-click="buttonClick()">MÚSICA RECOMENDADA</button>
+                    <button style="width: 250px;"class="random-music-btn">MÚSICA RECOMENDADA</button>
                 </a>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="bot">
-        <div class="header">MADS BOT</div>
-        <div class="content">
-            <!-- Bot messages go here -->
-        </div>
+<button class="chatbot-toggler">
+    <span class="material-symbols-rounded">mode_comment</span>
+    <span class="material-symbols-outlined">close</span>
+</button>
+<div class="chatbot">
+    <header>
+        <h2>Chatbot</h2>
+        <span class="close-btn material-symbols-outlined">close</span>
+    </header>
+    <ul class="chatbox">
+        <li class="chat incoming">
+        <span class="material-symbols-outlined">smart_toy</span>
+        <p>Hi there 👋<br>How can I help you today?</p>
+        </li>
+    </ul>
+    <div class="chat-input">
+        <textarea placeholder="Enter a message..." spellcheck="false" required></textarea>
+        <span id="send-btn" class="material-symbols-rounded">send</span>
     </div>
 </div>
 {% endblock %}

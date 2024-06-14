@@ -36,6 +36,18 @@ def infopageplay2(request):
 def infopageplay3(request):
     return render(request, 'app/infopageplay3.html')
 
+def infopagelanca0(request):
+    return render(request, 'app/infopagelanca0.html')
+
+def infopagelanca1(request):
+    return render(request, 'app/infopagelanca1.html')
+
+def infopagelanca2(request):
+    return render(request, 'app/infopagelanca2.html')
+
+def infopagelanca3(request):
+    return render(request, 'app/infopagelanca3.html')
+
 
 def recommendation_view(request):
     return render(request, 'app/recommendation.html') 

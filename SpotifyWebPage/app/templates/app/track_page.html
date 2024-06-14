@@ -37,7 +37,8 @@
             $scope.trackData = {};
             $scope.artistData = {};
             $scope.trackId = document.getElementById('trackId').value; 
-            $scope.artistId = '';  
+            $scope.artistId = '';
+            $scope.lyrics = ["", ""];  
             
             $scope.logout = function(){
                 window.location.href = "/";
@@ -103,9 +104,15 @@
                         method: 'GET',
                         params: {apikey: '1eda5b964243edf3e5ea0a46c498aae3', track_id: track_id},
                     }).then((response) => {
-                        $scope.lyrics = response.data.message.body.lyrics.lyrics_body.split('*******');
-                        console.log($scope.lyrics[0]);    
-                        console.log($scope.lyrics[1]);          
+                        console.log(response.data.message.header.status_code);
+                        if (response.data.message.header.status_code == "404"){
+                            $scope.lyrics[0] = 'No Lyrics...';
+                            $scope.lyrics[1] = 'This Lyrics is NOT for Commercial use';
+                        }
+                        else{
+                            $scope.lyrics = response.data.message.body.lyrics.lyrics_body.split('*******'); 
+                        }
+                                 
                     });
                 });  
             } 

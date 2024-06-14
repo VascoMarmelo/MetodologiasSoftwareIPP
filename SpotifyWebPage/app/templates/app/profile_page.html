@@ -97,24 +97,6 @@
                 });
             }
 
-            
-            function displayRecommendations(tracks) {
-                const recommendationsDiv = document.getElementById('recommendations');
-                recommendationsDiv.innerHTML = '';
-
-                tracks.forEach(track => {
-                    const trackElement = document.createElement('div');
-                    trackElement.innerHTML = `
-                        <p><strong>Track:</strong> ${track.name}</p>
-                        <p><strong>Artist:</strong> ${track.artists.map(artist => artist.name).join(', ')}</p>
-                        <p><strong>Album:</strong> ${track.album.name}</p>
-                        <a href="${track.external_urls.spotify}" target="_blank">Listen on Spotify</a>
-                        <hr>
-                    `;
-                    recommendationsDiv.appendChild(trackElement);
-                });
-            }
-
 
             $scope.getRespChat = function(){
                 $http({
@@ -215,22 +197,9 @@
                 $scope.getUserData();
                 $scope.getPlayList();
                 $scope.getArtist();
-                $scope.getRecomendations();
                 $scope.getRespChat();
 
-                //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
-
-                // Chamando a função getRecommendations com opções de exemplo
-                const options = {
-                    seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
-                    seed_genres: 'pop',
-                    seed_tracks: '0c6xIDDpzE81m2q797ordA',
-                    limit: 10,
-                    market: 'BR',
-                    min_energy: 0.4,
-                    max_energy: 0.8
-                };
-                $scope.getRecommendations(options);
+                //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPTt
 
             });
             

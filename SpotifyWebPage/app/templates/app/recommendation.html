@@ -1,8 +1,7 @@
 {% extends 'app/base_page.html' %}
 {% load static %}
 
-
-<!--Corpo do perfil-->
+<!-- Corpo do perfil -->
 {% block navbar %}
     <div ng-controller="myCtrlPerfil">
         <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #545454;">
@@ -23,16 +22,13 @@
                 </ul>
             </div>
         </nav>
-
+    </div>
 {% endblock %}
-
 
 {% block script %}
     <script>
-        app.controller('myCtrlPerfil', function($scope, $interval, $http, $location){
-            //Javascript
-
-            //Inicialização de variaveis
+        app.controller('myCtrlPerfil', function($scope, $http){
+            // Inicialização de variáveis
             $scope.client_id = window.localStorage.getItem('client_id');
             $scope.code = window.location.search.split('=')[1];
             $scope.accessToken = '';
@@ -45,64 +41,21 @@
                     headers: { Authorization: 'Bearer ' + $scope.accessToken },
                 }).then(function successCallback(response) {
                     $scope.userData = response.data;
-                    console.log($scope.userData);
+                    console.log('User data:', $scope.userData);
                 }, function errorCallback(error) {
-                    console.error('Error fetching data:', error);
+                    console.error('Error fetching user data:', error);
                 });
             };
 
-            $scope.getArtist = function(){
-                $http({
-                    method: 'GET',
-                    url: 'https://api.spotify.com/v1/me/following',
-                    params: { type: 'artist' },
-                    headers: { Authorization: 'Bearer ' + $scope.accessToken },
-                }).then(function successCallback(response) {
-                    $scope.userArtist = response.data;
-                    console.log($scope.userArtist);
-                }, function errorCallback(error) {
-                    console.error('Error fetching data:', error);
-                });
-            };
-
-            $scope.getRespChat = function(){
-                $http({
-                    method: 'GET',
-                    url: 'https://api.spotify.com/v1/search',
-                    headers: { Authorization: 'Bearer ' + $scope.accessToken },
-                    params: { type: 'artist' },
-                }).then(function successCallback(response) {
-                    $scope.chatbot = response.data;
-                    console.log($scope.chatbot);
-                }, function errorCallback(error) {
-                    console.error('Error fetching data:', error);
-                });
-            };
-
-            $scope.getPlayList = function(){
-                $http({
-                    method: 'GET',
-                    url: 'https://api.spotify.com/v1/browse/featured-playlists',
-                    headers: { Authorization: 'Bearer ' + $scope.accessToken },
-                }).then(function successCallback(response) {
-                    $scope.playList = response.data;
-                    console.log($scope.playList);
-                }, function errorCallback(error) {
-                    console.error('Error fetching data:', error);
-                });
-            };
-
-            $scope.getRecommendations = function(options){
-                const { seed_artists, seed_genres, seed_tracks, limit, market, min_energy, max_energy } = options;
-
+            $scope.getRecommendations = function(){
                 const params = {
-                    limit: limit || 20,
-                    market: market || 'BR',
-                    seed_artists: seed_artists || '',
-                    seed_genres: seed_genres || '',
-                    seed_tracks: seed_tracks || '',
-                    min_energy: min_energy || 0.0,
-                    max_energy: max_energy || 1.0,
+                    seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
+                    seed_genres: 'pop',
+                    seed_tracks: '0c6xIDDpzE81m2q797ordA',
+                    limit: 10,
+                    market: 'BR',
+                    min_energy: 0.4,
+                    max_energy: 0.8
                 };
 
                 $http({
@@ -115,6 +68,9 @@
                     displayRecommendations($scope.recommendations);
                 }, function errorCallback(error) {
                     console.error('Error fetching recommendations:', error);
+                    if (error.data) {
+                        console.error('Error details:', error.data);
+                    }
                 });
             };
 
@@ -126,10 +82,12 @@
                     const trackElement = document.createElement('div');
                     trackElement.classList.add('recommendation');
                     trackElement.innerHTML = `
-                        <p><strong>Track:</strong> ${track.name}</p>
-                        <p><strong>Artist:</strong> ${track.artists.map(artist => artist.name).join(', ')}</p>
-                        <p><strong>Album:</strong> ${track.album.name}</p>
-                        <a href="${track.external_urls.spotify}" target="_blank">Listen on Spotify</a>
+                        <div class="card-content">
+                            <p><strong>Música:</strong> ${track.name}</p>
+                            <p><strong>Artista:</strong> ${track.artists.map(artist => artist.name).join(', ')}</p>
+                            <p><strong>Álbum:</strong> ${track.album.name}</p>
+                            <a href="${track.external_urls.spotify}" target="_blank" style="text-decoration: none;">Ouça no Spotify</a>
+                        </div>
                     `;
                     recommendationsDiv.appendChild(trackElement);
                 });
@@ -186,21 +144,7 @@
 
             $scope.getToken().then(function(){
                 $scope.getUserData();
-                $scope.getPlayList();
-                $scope.getArtist();
-                $scope.getRespChat();
-
-                // Chamando a função getRecommendations com opções de exemplo
-                const options = {
-                    seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
-                    seed_genres: 'pop',
-                    seed_tracks: '0c6xIDDpzE81m2q797ordA',
-                    limit: 12,
-                    market: 'BR',
-                    min_energy: 0.4,
-                    max_energy: 0.8
-                };
-                $scope.getRecommendations(options);
+                $scope.getRecommendations();
             });
         });
     </script>
@@ -223,36 +167,26 @@
     .recommendation + .recommendation {
         margin-top: 20px; /* Espaço entre recomendações */
     }
-    .recommendation p, .recommendation a {
+    .recommendation p {
         color: white; /* Altera a cor da fonte para branco */
+        text-align: center; /* Centraliza o texto horizontalmente */
+        margin: 0; /* Remove margens padrão dos parágrafos */
+    }
+    .recommendation a {
+        color: #1ed760; /* Altera a cor da fonte para branco */
+        text-align: center; /* Centraliza o texto horizontalmente */
+        margin: 0; /* Remove margens padrão dos parágrafos */
     }
     .recommendation {
         background-color: #333; /* Cor de fundo do card */
         padding: 20px; /* Espaçamento interno do card */
         border-radius: 10px; /* Bordas arredondadas */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra do card */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+        text-align: center; /* Centraliza o texto no card */
     }
-    .recommendation a {
-        color: #FF914D; /* Altera a cor do link para laranja */
+    .card-content {
+        text-align: center; /* Centraliza o texto no conteúdo do card */
     }
 </style>
-
-<script>
-    // Código JavaScript para exibir recomendações de faixas
-    const recommendationsDiv = document.getElementById('recommendations');
-    tracks.forEach(track => {
-        const trackElement = document.createElement('div');
-        trackElement.classList.add('recommendation');
-        trackElement.innerHTML = `
-            <div class="card-content">
-                <p><strong>Track:</strong> ${track.name}</p>
-                <p><strong>Artist:</strong> ${track.artists.map(artist => artist.name).join(', ')}</p>
-                <p><strong>Album:</strong> ${track.album.name}</p>
-                <a href="${track.external_urls.spotify}" target="_blank">Listen on Spotify <img src=“https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png”></a>
-            </div>
-        `;
-        recommendationsDiv.appendChild(trackElement);
-    });
-</script>
 
 {% endblock %}

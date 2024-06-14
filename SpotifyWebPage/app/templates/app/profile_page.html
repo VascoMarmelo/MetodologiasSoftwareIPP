@@ -17,7 +17,7 @@
                         <span class="nav-link" style="cursor:pointer">Utilizador: {% verbatim %} {{userData.display_name}}  {% endverbatim %}  </span>                   
                     </li>
                     <li class="nav-item">
-                        <span class="nav-link logout-button">LOGOUT</span>
+                        <span class="nav-link logout-button" ng-click="logout()">LOGOUT</span>
                     </li>
                 </ul>
             </div>
@@ -37,6 +37,10 @@
             $scope.userData = {};            
             $scope.userArtists = {};
             $scope.userTracks = {};
+
+            $scope.logout = function(){
+                window.location.href = "/";
+            }
 
             $scope.getUserData = function(){
                 $http({
@@ -198,19 +202,6 @@
                 $scope.getUserArtist();
                 $scope.getPlayList(); 
                 $scope.getUserTracks();
-                
-                // Chamando a função getRecommendations com opções de exemplo
-                // const options = {
-                //     seed_artists: '4NHQUGzhtTLFvgF5SZesLK',
-                //     seed_genres: 'pop',
-                //     seed_tracks: '0c6xIDDpzE81m2q797ordA',
-                //     limit: 10,
-                //     market: 'BR',
-                //     min_energy: 0.4,
-                //     max_energy: 0.8
-                // };
-                // $scope.getRecommendations(options);     
-                
                 $scope.getRespChat();
             });
 

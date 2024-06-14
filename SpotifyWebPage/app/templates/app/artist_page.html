@@ -17,7 +17,7 @@
                         <span class="nav-link" style="cursor: pointer;">Utilizador: {% verbatim %} {{userData.display_name}} {% endverbatim %}</span>
                     </li>
                     <li class="nav-item">
-                        <span class="nav-link logout-button">LOGOUT</span>
+                        <span class="nav-link logout-button" ng-click="logout()">LOGOUT</span>
                     </li>
                 </ul>
             </div>
@@ -35,6 +35,10 @@
             $scope.userData = {};
             $scope.artistData = {};
             $scope.artistId = document.getElementById('artistIdInput').value;
+
+            $scope.logout = function(){
+                window.location.href = "/";
+            }
 
             $scope.getUserData = function(){
                 $http({

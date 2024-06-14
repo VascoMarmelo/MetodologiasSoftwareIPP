@@ -18,7 +18,7 @@
                         <span class="nav-link">Utilizador: {% verbatim %} {{userData.display_name}}  {% endverbatim %}  </span>
                     </li>
                     <li class="nav-item">
-                        <span class="nav-link logout-button">LOGOUT</span>
+                        <span class="nav-link logout-button" ng-click="logout()">LOGOUT</span>
                     </li>
                 </ul>
             </div>
@@ -37,6 +37,10 @@
             $scope.code = window.location.search.split('=')[1];
             $scope.accessToken = '';
             $scope.userData = {};
+
+            $scope.logout = function(){
+                window.location.href = "/";
+            }
 
             $scope.getUserData = function(){
                 $http({

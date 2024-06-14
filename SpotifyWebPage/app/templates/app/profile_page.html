@@ -328,6 +328,29 @@
                     </li>
                 </ul>
             </section>
+
+            <section class="section">
+                <h2>NOVOS LANÇAMENTO</h2>
+                <ul class="list">
+                    <li>
+                        {% verbatim %} {{userTracks.items[0].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[0].track.id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userTracks.items[1].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[1].track.id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userTracks.items[2].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[2].track.id)">Info</button>
+                    </li>
+                    <li>
+                        {% verbatim %} {{userTracks.items[3].track.name}} {% endverbatim %}
+                        <button ng-click="trackBtn(userTracks.items[3].track.id)">Info</button>
+                    </li>
+                </ul>
+            </section>
+            
         </div>
 
         <div class="column2">

@@ -1,0 +1,214 @@
+{% extends 'app/base_page.html' %}
+{% load static %}
+
+{% block css %}
+<style>
+.random-music-btn {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.random-music-btn:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+</style>
+{% endblock %}
+
+<!--Corpo do perfil-->
+{% block navbar %}
+    <div ng-controller="myCtrlPerfil">
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #545454;">
+            <div class="container-fluid">
+                <img src="{% static 'MADS.jpg' %}" width="40" height="40" alt="MADS Logo">
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-link" href="{% url 'app_profile' %}">Perfil</a>
+                    </div>
+                </div>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <span class="nav-link">Utilizador: {% verbatim %} {{userData.display_name}}  {% endverbatim %}  </span>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link logout-button">LOGOUT</span>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <button ng-click="teste()"> </button>
+
+
+{% endblock %}
+
+
+
+{% block script %}
+
+    <script>
+        app.controller('myCtrlPerfil', function($scope, $interval, $http, $location){
+            //Javascript
+
+            //Inicialização de variaveis
+            $scope.client_id = window.localStorage.getItem('client_id');
+            $scope.code = window.location.search;
+            $scope.code = $scope.code.split('=')[1];
+            $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
+            $scope.userData = {};
+
+            $scope.getUserData = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/me',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.userData = response.data; // Access the response data here
+                    console.log($scope.userData);
+
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }
+            $scope.getArtist= function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/me/following',
+                    params: { type: 'artist' },
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.userArtist = response.data; // Access the response data here
+                    console.log($scope.userArtist);
+                    console.log($scope.userArtist.artists.items[0].name[0]);
+
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }
+            $scope.getPlayList = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/browse/featured-playlists',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                }).then(function successCallback(response) {
+                    // Gere resposta, em caso de sucesso
+                    $scope.playList = response.data; // Access the response data here
+                    console.log($scope.playList);
+
+                }, function errorCallback(error) {
+                    // Gere resposta, em caso de falha
+                    console.error('Error fetching data:', error);
+                });
+            }
+
+            $scope.getToken = async function() {
+
+                const clientId = window.localStorage.getItem('client_id');
+                const redirectUri = window.localStorage.getItem('redirectUri');
+
+                //Primeira Vez que acede-se à pagina
+                if (window.localStorage.getItem('refresh_token') == ''){
+
+                    // stored in the previous step
+                    let codeVerifier = window.localStorage.getItem('code_verifier');
+
+                    const payload = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            client_id: clientId,
+                            grant_type: 'authorization_code',
+                            code: $scope.code,
+                            redirect_uri: redirectUri,
+                            code_verifier: codeVerifier,
+                        }),
+                    }
+
+                    const body = await fetch('https://accounts.spotify.com/api/token', payload);
+                    const response = await body.json();
+                    window.localStorage.setItem('access_token', response.access_token);
+                    window.localStorage.setItem('refresh_token', response.refresh_token);
+                    $scope.accessToken = response.access_token;
+                }
+                //Refresh
+                else{
+
+                    // refresh token that has been previously stored
+                    const refreshToken = window.localStorage.getItem('refresh_token');
+                    const url = "https://accounts.spotify.com/api/token";
+
+                    const payload = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            grant_type: 'refresh_token',
+                            refresh_token: refreshToken,
+                            client_id: clientId
+                        }),
+                    }
+
+                    const body = await fetch(url, payload);
+                    const response = await body.json();
+
+                    window.localStorage.setItem('access_token', response.access_token);
+                    window.localStorage.setItem('refresh_token', response.refresh_token);
+                    $scope.accessToken = response.access_token;
+
+                }
+
+            }
+
+            $scope.getToken().then(function(){
+                $scope.getUserData();
+                $scope.getPlayList();
+                $scope.getArtist();
+                //EXECUTAR AQUI AS FUNCOES DE JAVASCRIPT 
+
+            });
+            
+            
+            
+
+
+        });
+
+            
+
+
+    </script>
+
+{% endblock %}
+
+{% block html %}
+
+    <div class="container">
+        <div class="column1">
+            <h1>INFORMAÇÕES </h1>
+            <section class="section">
+                <h2>PLAYLIST</h2>
+
+                <p style="color: white"> Nome da Playlist:  {% verbatim %}{{playList.playlists.items[0].name}} {% endverbatim %}</p>
+                <p style="color: white">Descrição:  {% verbatim %} {{playList.playlists.items[0].description}} {% endverbatim %}</p>
+
+
+            </section>
+
+
+
+</div>
+{% endblock %}

@@ -16,6 +16,10 @@ urlpatterns = [
     path('infopageplay1/', views.infopageplay1, name='infopageplay1'),
     path('infopageplay2/', views.infopageplay2, name='infopageplay2'),
     path('infopageplay3/', views.infopageplay3, name='infopageplay3'),
+    path('infopagelanca0/', views.infopagelanca0, name='infopagelanca0'),
+    path('infopagelanca1/', views.infopagelanca1, name='infopagelanca1'),
+    path('infopagelanca2/', views.infopagelanca2, name='infopagelanca2'),
+    path('infopagelanca3/', views.infopagelanca3, name='infopagelanca3'),
     path('chatboot/', views.chatboot, name='chatboot'),
     path('recommendation/', views.recommendation_view, name='recommendation'),
 ]

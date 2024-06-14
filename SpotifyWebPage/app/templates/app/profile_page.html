@@ -37,6 +37,7 @@
             $scope.userData = {};            
             $scope.userArtists = {};
             $scope.userTracks = {};
+            $scope.userReleases = {};
 
             $scope.logout = function(){
                 window.location.href = "/";
@@ -137,7 +138,22 @@
                     console.error('Error fetching data:', error);
                 });
             }            
+              
+            $scope.getUserReleases = function(){
+                $http({
+                    method: 'GET',
+                    url: 'https://api.spotify.com/v1/browse/new-releases',
+                    headers: {Authorization: 'Bearer ' + $scope.accessToken},
+                    
+                }).then(function successCallback(response) {                    
+                    $scope.userReleases = response.data;                     
+                    
+                }, function errorCallback(error) {                    
+                    console.error('Error fetching data:', error);
+                });
+            }            
             
+
             function displayRecommendations(tracks) {
                 const recommendationsDiv = document.getElementById('recommendations');
                 recommendationsDiv.innerHTML = '';
@@ -236,6 +252,7 @@
                 $scope.getTrackList();
                 $scope.getPlayList(); 
                 $scope.getUserTracks();
+                $scope.getUserReleases();
                 $scope.getRespChat();
             });
 
@@ -245,6 +262,11 @@
             };
 
             $scope.trackBtn = function(trackId) {
+                var url = '/track/' + trackId + '/';
+                window.location.href = url;    
+            };
+
+            $scope.ReleasesBtn = function(trackId) {
                 var url = '/track/' + trackId + '/';
                 window.location.href = url;    
             };
@@ -333,20 +355,20 @@
                 <h2>NOVOS LANÇAMENTO</h2>
                 <ul class="list">
                     <li>
-                        {% verbatim %} {{userTracks.items[0].track.name}} {% endverbatim %}
-                        <button ng-click="trackBtn(userTracks.items[0].track.id)">Info</button>
+                        {% verbatim %} {{userReleases.items[0].track.name}} {% endverbatim %}
+                        <button ng-click="ReleasesBtn(userReleases.items[0].track.id)">Info</button>
                     </li>
                     <li>
-                        {% verbatim %} {{userTracks.items[1].track.name}} {% endverbatim %}
-                        <button ng-click="trackBtn(userTracks.items[1].track.id)">Info</button>
+                        {% verbatim %} {{userReleases.items[1].track.name}} {% endverbatim %}
+                        <button ng-click="ReleasesBtn(userReleases.items[1].track.id)">Info</button>
                     </li>
                     <li>
-                        {% verbatim %} {{userTracks.items[2].track.name}} {% endverbatim %}
-                        <button ng-click="trackBtn(userTracks.items[2].track.id)">Info</button>
+                        {% verbatim %} {{userReleases.items[2].track.name}} {% endverbatim %}
+                        <button ng-click="ReleasesBtn(userReleases.items[2].track.id)">Info</button>
                     </li>
                     <li>
-                        {% verbatim %} {{userTracks.items[3].track.name}} {% endverbatim %}
-                        <button ng-click="trackBtn(userTracks.items[3].track.id)">Info</button>
+                        {% verbatim %} {{userReleases.items[3].track.name}} {% endverbatim %}
+                        <button ng-click="ReleasesBtn(userReleases.items[3].track.id)">Info</button>
                     </li>
                 </ul>
             </section>

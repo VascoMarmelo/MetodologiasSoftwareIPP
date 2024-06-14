@@ -62,7 +62,7 @@
                     headers: {Authorization: 'Bearer ' + $scope.accessToken},                                      
                 }).then(function successCallback(response) {                    
                     $scope.trackData = response.data;                      
-                    $scope.artistId = response.data.artists[0].id ;            
+                    $scope.artistId = response.data.artists[0].id ;       
                 }, function errorCallback(error) {                    
                     console.error('Error fetching data:', error);
                 });
@@ -79,6 +79,37 @@
                     console.error('Error fetching data:', error);
                 });
             }
+
+            $scope.musicMatchLyrics = function(trackName, artistName){
+                let track_id = '';
+                
+                //API CALL for track_id
+                $http({   
+                    url: 'https://corsproxy.io/?https://api.musixmatch.com/ws/1.1/track.search',
+                    method: 'GET',
+                    params: {apikey: '1eda5b964243edf3e5ea0a46c498aae3', q_track: trackName, q_artist: artistName},
+                }).then((response) => {
+                    console.log(response.data.message.body);
+                    for (t of response.data.message.body.track_list){
+                        if (trackName === t.track.track_name){  //Caso retorne mais do que 1 musica, escolher aquela que o nome é exatamente igual
+                            track_id = t.track.track_id;    
+                            break;
+                        }                                        
+                    }                              
+                }).then(() => {
+                    //API CALL for Lyrics
+                    $http({   
+                        url: 'https://corsproxy.io/?https://api.musixmatch.com/ws/1.1/track.lyrics.get',                   
+                        method: 'GET',
+                        params: {apikey: '1eda5b964243edf3e5ea0a46c498aae3', track_id: track_id},
+                    }).then((response) => {
+                        $scope.lyrics = response.data.message.body.lyrics.lyrics_body.split('*******');
+                        console.log($scope.lyrics[0]);    
+                        console.log($scope.lyrics[1]);             
+                    });
+                });  
+            } 
+
 
             $scope.getToken = async function() {
                 const clientId = window.localStorage.getItem('client_id');
@@ -138,7 +169,8 @@
                 $scope.getToken().then(function(){
                     $scope.getUserData();
                     $scope.getCurrentTrack().then(function () {
-                        $scope.getCurrentArtist();                      
+                        $scope.getCurrentArtist();       
+                        $scope.musicMatchLyrics($scope.trackData.name, $scope.trackData.artists[0].name);               
                     });                   
                 });
             };  
@@ -146,8 +178,10 @@
             $scope.init2 = function() {  
                 $scope.getUserData();                                                        
                 $scope.getCurrentTrack().then(function () {
-                    $scope.getCurrentArtist();                      
-                });        
+                    $scope.getCurrentArtist();  
+                    $scope.musicMatchLyrics($scope.trackData.name, $scope.trackData.artists[0].name);                       
+                }); 
+
             };  
 
             $scope.backBtn = function() { 
@@ -159,8 +193,16 @@
                 var minutes = Math.floor(milliseconds / 60000);
                 var seconds = ((milliseconds % 60000) / 1000).toFixed(0);
                 return minutes + ":" + (seconds < 10 ? '0' : '') + seconds + ' min';
-            };           
+            };          
+            
+            
+
         });
+
+        
+
+
+
     </script>    
 {% endblock %}
 
@@ -194,7 +236,8 @@
         </div>
         <div class="column2">
             <h3 style="color:#aaa">LYRICS</h3>
-            <div class="lyrics-box p-3 mb-4" style="background-color: white; color: black;">Letra da musica</div>
+            <div class="lyrics-box p-3 mb-4" style="background-color: white; color: black;">{% verbatim %} {{lyrics[0]}} {% endverbatim %}</div>
+            <div class="lyrics-box p-2 mb-2" style="background-color: gray; color: black;">{% verbatim %} {{lyrics[1]}} {% endverbatim %}</div>
             <h3 style="color:#aaa">PLAY</h3>
             <audio controls ng-src="{% verbatim %}{{ trackData.preview_url }}{% endverbatim %}"></audio>
         </div>

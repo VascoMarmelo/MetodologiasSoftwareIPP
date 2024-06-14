@@ -62,7 +62,7 @@
             $scope.code = window.location.search;
             $scope.code = $scope.code.split('=')[1];
             $scope.accessToken = '';    //O $scope.accessToken é apanhado na função getToken. Tens de usar na autorização, como está no $scope.getUserData()
-            $scope.userData = {};~
+            $scope.userData = {};
 
             $scope.logout = function(){
                 window.location.href = "/";
